@@ -8,16 +8,16 @@ Why?
 
 Mostly because I was jealous of RMarkdown/knitr.
 
-Interleaving prose code and results conveys meaning well.  The Jupyter notebook
-taught us this.  When we author static content we want a simple text-based
-format. Markdown is good here because it plays well with other tools
+Interleaving prose, code, and results conveys meaning well.  The Jupyter
+notebook taught us this.  When we author static content we want a simple
+text-based format. Markdown is good here because it plays well with other tools
 (`vi/emacs`, `pandoc`, `git`.)  RMarkdown/knitr has demonstrated value in the R
 ecosystem, pymarkdown just copies that idea (badly at the moment.)
 
 How does this work?
 -------------------
 
-PyMarkdown leverages the `doctest` module to part code into prose and code
+PyMarkdown leverages the `doctest` module to parse code into prose and code
 segments much like a docstring.  We then execute each code segment in order
 with `exec`, tracking state throughout the document, emitting or correcting
 results from computation where appropriate.  Both input and output documents
@@ -41,11 +41,11 @@ Example
     with potentially missing or wrong results
     ```
 
-Run pymarkdown
+We run pymarkdown:
 
     $ pymarkdown text.md text.out.md
 
-### Result
+And get results like the following:
 
 Our documents contain prose with *rich formatting*.
 
