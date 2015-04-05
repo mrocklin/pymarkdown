@@ -112,6 +112,12 @@ PyMarkdown leverages standard protocols like `to_html` or `__repr_html__`.
 </table>
 
 
+Images
+------
+
+Nope, not yet.
+
+
 ### TODO
 
 * Interact with matplotlib (figure out how IPython does this)
