@@ -16,9 +16,10 @@ Text before::
 
     ```
     # And some code
-    >>> 1 + 1
+    >>> x = 1
+    >>> x + 1
 
-    >>> 2 + 2
+    >>> 2 + 2*x
     wrong result
     ```
 
@@ -36,9 +37,10 @@ Text after::
 
     ```
     # And some code
-    >>> 1 + 1
+    >>> x = 1
+    >>> x + 1
     2
 
-    >>> 2 + 2
+    >>> 2 + 2*x
     4
     ```
