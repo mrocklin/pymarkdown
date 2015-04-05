@@ -45,7 +45,7 @@ We run pymarkdown:
 
     $ pymarkdown text.md text.out.md
 
-And get results like the following:
+### Output
 
 Our documents contain prose with *rich formatting*.
 

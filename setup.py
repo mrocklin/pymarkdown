@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 setup(name='pymarkdown',
-      version='0.1.2',
+      version='0.1.3',
       description='Evaluate code in markdown',
       url='http://github.com/mrocklin/pymarkdown',
       author='Matthew Rocklin',
@@ -13,7 +13,7 @@ setup(name='pymarkdown',
       license='BSD',
       keywords='markdown documentation',
       packages=['pymarkdown'],
-      install_requires=[],
+      install_requires=['toolz'],
       long_description=(open('README.rst').read() if os.path.exists('README.rst')
                         else ''),
       zip_safe=False,
