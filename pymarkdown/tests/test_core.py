@@ -61,7 +61,7 @@ def test_step():
 
     a = doctest.Example("Shout('Hello!')", '')
     out, scope, state = step(a, {'Shout': Shout}, {'code': '```Python'})
-    assert out == ['```', Shout('Hello!').__repr_html__(), '```Python']
+    assert out == [a, '```', Shout('Hello!').__repr_html__(), '```Python']
     assert state == {'code': '```Python'}
 
 

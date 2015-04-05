@@ -6,92 +6,6 @@ import itertools
 import sys
 from toolz.curried import pipe, map, filter, concat
 
-class RecordingDocTestRunner(doctest.DocTestRunner):
-    def __init__(self, *args, **kwargs):
-        self.events = list()
-        doctest.DocTestRunner.__init__(self, *args, **kwargs)
-
-    def report_failure(self, out, test, example, got):
-        self.events.append(('failure', out, test, example, got))
-        return doctest.DocTestRunner.report_failure(self, out, test, example, got)
-    def report_success(self, out, test, example, got):
-        self.events.append(('success', out, test, example, got))
-        return doctest.DocTestRunner.report_success(self, out, test, example, got)
-    def report_unexpected_exception(self, out, test, example, got):
-        self.events.append(('exception', out, test, example, got))
-        return doctest.DocTestRunner.report_unexpected_exception(self, out, test, example, got)
-
-
-def iscodebrace(line):
-    return (line.startswith('```')
-         or line.startswith('~~~')
-         or line.startswith('{%') and 'highlight' in line
-         or line.startswith('{%') and 'syntax' in line)
-
-
-def closing_brace(opener):
-    """
-
-    >>> closing_brace('```Python')
-    '```'
-    """
-    if '```' in opener:
-        return '```'
-    if '~~~' in opener:
-        return '~~~'
-    if 'highlight' in opener:
-        return '{% endhighlight %}'
-    if 'syntax' in opener:
-        return '{% endsyntax %}'
-
-
-def separate_fence(part, endl='\n'):
-    """ Separate code braces from prose or example sections
-
-    >>> separate_fence('Hello\n```python')
-    ['Hello', '```python']
-
-    >>> separate_fence(doctest.Example('1 + 1', '2\n```'))
-    [Example('1 + 1', '2'), '```']
-    """
-    if isinstance(part, (str, unicode)):
-        lines = part.split('\n')
-        groups = itertools.groupby(lines, iscodebrace)
-        return ['\n'.join(group) for _, group in groups]
-    if isinstance(part, doctest.Example):
-        lines = part.want.rstrip().split('\n')
-        braces = list(map(iscodebrace, lines))
-        if any(braces):
-            i = braces.index(True)
-            return [doctest.Example(part.source, '\n'.join(lines[:i])),
-                    lines[i],
-                    '\n'.join(lines[i+1:])]
-        else:
-            return [part]
-
-
-def prompt(text):
-    """
-
-        prompt("x + 1")  # doctest: +SKIP
-        '>>> x + 1'
-        prompt("for i in seq:\n    print(i)")
-        '>>> for i in seq:\n...     print(i)'
-    """
-    return '>>> ' + text.rstrip().replace('\n', '\n... ')
-
-
-parser = doctest.DocTestParser()
-
-def render_part(part):
-    if isinstance(part, (str, unicode)):
-        return part
-    if isinstance(part, doctest.Example):
-        result = prompt(part.source)
-        if part.want:
-            result = result + '\n' + part.want
-        return result.rstrip()
-
 
 def process(text):
     """ Replace failures in docstring with results """
@@ -100,8 +14,8 @@ def process(text):
                        map(separate_fence),
                        concat, list)
 
-    scope = dict()
-    state = dict()
+    scope = dict()  # scope of variables in our executed environment
+    state = dict()  # state of pymarkdown traversal
 
     out_parts = list()
     for part in parts:
@@ -113,10 +27,6 @@ def process(text):
                            '\n'.join)
 
 
-def isassignment(line):
-    return not not re.match('^\w+\s*=', line)
-
-
 def step(part, scope, state):
     """ Step through one part of the document
 
@@ -126,7 +36,7 @@ def step(part, scope, state):
     4.  Code with html output:
         print source, end code block, print html, start code block
     """
-    if isinstance(part, (str, unicode)) and iscodebrace(part):
+    if isinstance(part, (str, unicode)) and iscodefence(part):
         if 'code' in state:
             del state['code']
         else:
@@ -149,12 +59,12 @@ def step(part, scope, state):
             out = [doctest.Example(part.source, '')]
         elif hasattr(result, '__repr_html__'):
             out = [doctest.Example(part.source, ''),
-                   closing_brace(state['code']),
+                   closing_fence(state['code']),
                    result.__repr_html__(),
                    state['code']]
         elif hasattr(result, 'to_html'):
             out = [doctest.Example(part.source, ''),
-                   closing_brace(state['code']),
+                   closing_fence(state['code']),
                    result.to_html(),
                    state['code']]
         else:
@@ -165,6 +75,81 @@ def step(part, scope, state):
         return out, scope, state
 
     raise NotImplementedError()
+
+
+def iscodefence(line):
+    return (line.startswith('```')
+         or line.startswith('~~~')
+         or line.startswith('{%') and 'highlight' in line
+         or line.startswith('{%') and 'syntax' in line)
+
+
+def closing_fence(opener):
+    """ Closing pair an an opening fence
+
+    >>> closing_fence('```Python')
+    '```'
+    """
+    if '```' in opener:
+        return '```'
+    if '~~~' in opener:
+        return '~~~'
+    if 'highlight' in opener:
+        return '{% endhighlight %}'
+    if 'syntax' in opener:
+        return '{% endsyntax %}'
+
+
+def separate_fence(part, endl='\n'):
+    """ Separate code fences from prose or example sections
+
+        >> separate_fence('Hello\n```python')
+        ['Hello', '```python']
+
+        >> separate_fence(doctest.Example('1 + 1', '2\n```'))
+        [Example('1 + 1', '2'), '```']
+    """
+    if isinstance(part, (str, unicode)):
+        lines = part.split('\n')
+        groups = itertools.groupby(lines, iscodefence)
+        return ['\n'.join(group) for _, group in groups]
+    if isinstance(part, doctest.Example):
+        lines = part.want.rstrip().split('\n')
+        fences = list(map(iscodefence, lines))
+        if any(fences):
+            i = fences.index(True)
+            return [doctest.Example(part.source, '\n'.join(lines[:i])),
+                    lines[i],
+                    '\n'.join(lines[i+1:])]
+        else:
+            return [part]
+
+
+def prompt(text):
+    """ Add >>> and ... prefixes back into code
+
+    prompt("x + 1")  # doctest: +SKIP
+    '>>> x + 1'
+    prompt("for i in seq:\n    print(i)")
+    '>>> for i in seq:\n...     print(i)'
+    """
+    return '>>> ' + text.rstrip().replace('\n', '\n... ')
+
+
+parser = doctest.DocTestParser()
+
+def render_part(part):
+    """ Render a part into text """
+    if isinstance(part, (str, unicode)):
+        return part
+    if isinstance(part, doctest.Example):
+        result = prompt(part.source)
+        if part.want:
+            result = result + '\n' + part.want
+        return result.rstrip()
+
+def isassignment(line):
+    return not not re.match('^\w+\s*=', line)
 
 
 def valid_statement(source):
