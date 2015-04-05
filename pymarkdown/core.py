@@ -1,5 +1,8 @@
 import doctest
 import re
+from contextlib import contextmanager
+from StringIO import StringIO
+import sys
 
 class RecordingDocTestRunner(doctest.DocTestRunner):
     def __init__(self, *args, **kwargs):
@@ -71,10 +74,10 @@ def cleanup_code_braces(text, endl='\n'):
 def prompt(text):
     """
 
-    >>> prompt("x + 1")
-    '>>> x + 1'
-    >>> prompt("for i in seq:\n    print(i)")
-    '>>> for i in seq:\n...     print(i)'
+        prompt("x + 1")  # doctest: +SKIP
+        '>>> x + 1'
+        prompt("for i in seq:\n    print(i)")
+        '>>> for i in seq:\n...     print(i)'
     """
     return ('>>> '
             + text.rstrip().replace('\n', '... ')
@@ -83,32 +86,32 @@ def prompt(text):
 
 parser = doctest.DocTestParser()
 
+def render_part(part):
+    if isinstance(part, str):
+        return part
+    if isinstance(part, doctest.Example):
+        return prompt(part.source) + part.want
+
 
 def process(text):
     """ Replace failures in docstring with results """
     text = separate_code_braces(text)
-    runner = RecordingDocTestRunner()
-    test = parser.get_doctest(text, dict(), 'foo', '', 0)
-    runner.run(test)
     parts = parser.parse(text)
 
-    parts2 = []
-    events = iter(runner.events)
-    for part in parts:
-        if isinstance(part, doctest.Example):
-            _, _, _, example, result = next(events)
-            parts2.append(prompt(example.source))
-            if result.rstrip():
-                parts2.append(result)
-        else:
-            if part:
-                parts2.append(part)
+    scope = dict()
+    state = dict()
 
-    return cleanup_code_braces(''.join(parts2))
+    out_parts = list()
+    for part in parts:
+        out, scope, state = step(part, scope, state)
+        out_parts.extend(out)
+
+    return cleanup_code_braces(''.join(map(render_part, out_parts)))
 
 
 def isassignment(line):
     return not not re.match('^\w+\s*=', line)
+
 
 def step(part, scope, state):
     """ Step through one part of the document
@@ -122,22 +125,68 @@ def step(part, scope, state):
             del state['code']
         else:
             state['code'] = part
-        return part, scope, state
+        return [part], scope, state
     if isinstance(part, (str, unicode)):
-        return part, scope, state
+        return [part], scope, state
     if isinstance(part, doctest.Example):
-        code = compile(part.source, '', 'single')
-        exec(code, scope)
-        result = _
+        if valid_statement('_last = ' + part.source):
+            code = compile('_last = ' + part.source, '<pymarkdown>', 'single')
+            exec(code, scope)
+            result = scope.pop('_last')
+        else:
+            with swap_stdout() as s:
+                code = compile(part.source, '<pymarkdown>', 'single')
+                exec(code, scope)
+            result = s.read().rstrip().strip("'")
+
         if isassignment(part.source):
             result = ''
         if hasattr(result, '__repr_html__'):
-            raise NotImplementedError()
+            out = [closing_brace(state['code']),
+                   result.__repr_html__(),
+                   state['code']]
         else:
-            if result:
+            if result and not isinstance(result, str):
                 result = repr(result)
-            out = doctest.Example(part.source, result)
+            out = [doctest.Example(part.source, result)]
         del scope['__builtins__']
         return out, scope, state
 
     raise NotImplementedError()
+
+
+def valid_statement(source):
+    """ Is source a valid statement?
+
+    >>> valid_statement('x = 1')
+    True
+    >>> valid_statement('x = print foo')
+    False
+    """
+    try:
+        compile(source, '', 'single')
+        return True
+    except SyntaxError:
+        return False
+
+
+@contextmanager
+def swap_stdout():
+    """ Swap sys.stdout with a StringIO object
+
+    Yields the StringIO object and cleans up afterwards
+
+    >>> with swap_stdout() as s:
+    ...      print "Hello!",
+    >>> s.read()
+    'Hello!'
+    """
+    s = StringIO()
+    old = sys.stdout
+    sys.stdout = s
+
+    try:
+        yield s
+    finally:
+        s.pos = 0
+        sys.stdout = old
