@@ -95,8 +95,7 @@ def render_part(part):
 
 def process(text):
     """ Replace failures in docstring with results """
-    parts = pipe(text,
-                       parser.parse,
+    parts = pipe(text, parser.parse,
                        filter(None),
                        map(separate_fence),
                        concat, list)
@@ -121,9 +120,11 @@ def isassignment(line):
 def step(part, scope, state):
     """ Step through one part of the document
 
-    1.  Prose: passed through
-    2.  Code fence: recorded
-    3.  Code: evaluated
+    1.  Prose: pass through
+    2.  Code fence: record
+    3.  Code: evaluate
+    4.  Code with html output:
+        print source, end code block, print html, start code block
     """
     if isinstance(part, (str, unicode)) and iscodebrace(part):
         if 'code' in state:

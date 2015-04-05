@@ -27,9 +27,9 @@ Example
     with wrong results
     ```
 
-Run pymarkdown::
+Run pymarkdown
 
-   $ pymarkdown text.md text.out.md
+    $ pymarkdown text.md text.out.md
 
 ### Result
 
@@ -104,6 +104,6 @@ Lets see an example with Pandas
 * Interact with matplotlib (figure out how IPython does this)
 * Interact with Bokeh plots.  These already implement `__repr_html__` so this
   probably just means linking to some static content somewhere.
-* Support inlining
+* Support inlining of values in prose blocks
 * Support options like ignore, echo=False, etc..
 * Handle exceptions
