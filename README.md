@@ -118,6 +118,11 @@ Images
 Nope, not yet.
 
 
+Support
+-------
+
+There is none!  This is a Saturday morning project.  Use at your own risk.
+
 ### TODO
 
 * Interact with matplotlib (figure out how IPython does this)
@@ -126,3 +131,4 @@ Nope, not yet.
 * Support inlining of values in prose blocks
 * Support options like ignore, echo=False, etc..
 * Handle exceptions
+

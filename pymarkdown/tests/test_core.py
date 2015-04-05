@@ -1,4 +1,5 @@
-from pymarkdown.core import (process, parser, step, separate_fence)
+from pymarkdown.core import (process, parser, step, separate_fence,
+        render_bokeh_figure)
 import doctest
 
 text = """
@@ -11,7 +12,7 @@ Some prose
 >>> x = 1
 >>> x + 1
 ```
-""".rstrip()
+""".strip()
 
 desired = """
 Title
@@ -24,7 +25,7 @@ Some prose
 >>> x + 1
 2
 ```
-""".rstrip()
+""".strip()
 
 
 def test_process():
@@ -76,3 +77,22 @@ def test_separate_fence():
 
     assert separate_fence(doctest.Example('1 + 1', '2\n```')) ==\
             [doctest.Example('1 + 1', '2'), '```', '']
+
+
+def test_render_bokeh():
+    try:
+        from bokeh.plotting import figure
+    except ImportError:
+        return
+    p = figure(title='My Title')
+    p.line([1, 2, 3], [1, 4, 9])
+
+    state = {'code': '```'}
+    out = render_bokeh_figure(p, state)
+
+    assert out[0] == '```'
+    assert out[1].startswith('<div')
+    assert out[2] == '```'
+    assert 'My Title' in state['footers'][0]
+    assert any('.css' in header for header in state['headers'])
+    assert any('.js' in header for header in state['headers'])

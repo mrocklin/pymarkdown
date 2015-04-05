@@ -22,9 +22,13 @@ def process(text):
         out, scope, state = step(part, scope, state)
         out_parts.extend(out)
 
-    return pipe(out_parts, map(render_part),
+    head = '\n'.join(sorted(state.get('headers', set())))
+    body = pipe(out_parts, map(render_part),
                            filter(None),
                            '\n'.join)
+    foot = '\n\n'.join(state.get('footers', []))
+
+    return '\n\n'.join([head, body, foot]).strip()
 
 
 def step(part, scope, state):
@@ -57,6 +61,9 @@ def step(part, scope, state):
 
         if isassignment(part.source):
             out = [doctest.Example(part.source, '')]
+        elif type_key(result) in custom_renderers:
+            func = custom_renderers[type_key(type(result))]
+            out = [doctest.Example(part.source, '')] + func(result, state)
         elif hasattr(result, '__repr_html__'):
             out = [doctest.Example(part.source, ''),
                    closing_fence(state['code']),
@@ -187,3 +194,31 @@ def swap_stdout():
     finally:
         s.pos = 0
         sys.stdout = old
+
+
+def type_key(typ):
+    if not isinstance(typ, type):
+        typ = type(typ)
+    return '%s.%s' % (typ.__module__, typ.__name__)
+
+
+def render_bokeh_figure(result, state):
+    from bokeh.resources import CDN
+    if 'headers' not in state:
+        state['headers'] = set()
+    state['headers'].update([
+        '<script src="%s" async=""></script>' % CDN.js_files[0],
+        '<link rel="stylesheet" href="%s" type="text/css"/>' % CDN.css_files[0]
+        ])
+
+    from bokeh.embed import components
+    script, div = components(result, CDN)
+    if 'footers' not in state:
+        state['footers'] = list()
+    state['footers'].append(script)
+    return [closing_fence(state['code']),
+            div,
+            state['code']]
+
+
+custom_renderers = {'bokeh.plotting.Figure': render_bokeh_figure}
