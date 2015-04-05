@@ -1,4 +1,5 @@
-from pymarkdown.core import process, separate_code_braces
+from pymarkdown.core import process, separate_code_braces, parser, step
+import doctest
 
 text = """
 Title
@@ -7,7 +8,8 @@ Title
 Some prose
 
 ```
->>> 1 + 1
+>>> x = 1
+>>> x + 1
 ```
 """.rstrip()
 
@@ -18,10 +20,14 @@ Title
 Some prose
 
 ```
->>> 1 + 1
+>>> x = 1
+>>> x + 1
 2
 ```
 """.rstrip()
+
+
+parts = parser.parse(separate_code_braces(text))
 
 
 def test_process():
@@ -30,3 +36,24 @@ def test_process():
 
 def test_separate_code_braces():
     assert separate_code_braces(text).split('\n')[-2:] == ['', '```']
+
+
+def test_step():
+    out, scope, state = step("prose", {'x': 1}, {})
+    assert (out, scope, state) == ("prose", {'x': 1}, {})
+
+    out, scope, state = step("```Python", {'x': 1}, {})
+    assert (out, scope, state) == ("```Python", {'x': 1}, {'code': '```Python'})
+
+    # Remove code state
+    out, scope, state = step("```", {'x': 1}, {'code': '```Python'})
+    assert (out, scope, state) == ("```", {'x': 1}, {})
+
+    a = doctest.Example("x + 1", "3")
+    b = doctest.Example("x + 1", "2")
+    out, scope, state = step(a, {'x': 1}, {'code': '```Python'})
+    assert (out, scope, state) == (b, {'x': 1}, {'code': '```Python'})
+
+    a = doctest.Example("y = x + 1", "")
+    out, scope, state = step(a, {'x': 1}, {'code': '```Python'})
+    assert (out, scope, state) == (a, {'x': 1, 'y': 2}, {'code': '```Python'})

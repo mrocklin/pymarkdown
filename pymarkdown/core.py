@@ -1,4 +1,5 @@
 import doctest
+import re
 
 class RecordingDocTestRunner(doctest.DocTestRunner):
     def __init__(self, *args, **kwargs):
@@ -21,6 +22,22 @@ def iscodebrace(line):
          or line.startswith('~~~')
          or line.startswith('{%') and 'highlight' in line
          or line.startswith('{%') and 'syntax' in line)
+
+
+def closing_brace(opener):
+    """
+
+    >>> closing_brace('```Python')
+    '```'
+    """
+    if '```' in opener:
+        return '```'
+    if '~~~' in opener:
+        return '~~~'
+    if 'highlight' in opener:
+        return '{% endhighlight %}'
+    if 'syntax' in opener:
+        return '{% endsyntax %}'
 
 
 def separate_code_braces(text, endl='\n'):
@@ -88,3 +105,39 @@ def process(text):
                 parts2.append(part)
 
     return cleanup_code_braces(''.join(parts2))
+
+
+def isassignment(line):
+    return not not re.match('^\w+\s*=', line)
+
+def step(part, scope, state):
+    """ Step through one part of the document
+
+    1.  Prose: passed through
+    2.  Code fence: recorded
+    3.  Code: evaluated
+    """
+    if isinstance(part, str) and iscodebrace(part):
+        if 'code' in state:
+            del state['code']
+        else:
+            state['code'] = part
+        return part, scope, state
+    if isinstance(part, (str, unicode)):
+        return part, scope, state
+    if isinstance(part, doctest.Example):
+        code = compile(part.source, '', 'single')
+        exec(code, scope)
+        result = _
+        if isassignment(part.source):
+            result = ''
+        if hasattr(result, '__repr_html__'):
+            raise NotImplementedError()
+        else:
+            if result:
+                result = repr(result)
+            out = doctest.Example(part.source, result)
+        del scope['__builtins__']
+        return out, scope, state
+
+    raise NotImplementedError()
