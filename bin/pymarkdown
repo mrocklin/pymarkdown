@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from pymarkdown import render
+from pymarkdown import process
 from sys import argv
 
 if not len(argv) == 2:
@@ -11,7 +11,7 @@ fn = argv[1]
 with open(fn) as f:
     text = f.read()
 
-output = render(text)
+output = process(text)
 
 with open(fn, 'w') as f:
     f.write(output)

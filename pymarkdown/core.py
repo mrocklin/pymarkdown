@@ -1,82 +1,54 @@
-from itertools import chain
+import doctest
+
+class RecordingDocTestRunner(doctest.DocTestRunner):
+    def __init__(self, *args, **kwargs):
+        self.events = list()
+        doctest.DocTestRunner.__init__(self, *args, **kwargs)
+
+    def report_failure(self, out, test, example, got):
+        self.events.append(('failure', out, test, example, got))
+        return doctest.DocTestRunner.report_failure(self, out, test, example, got)
+    def report_success(self, out, test, example, got):
+        self.events.append(('success', out, test, example, got))
+        return doctest.DocTestRunner.report_success(self, out, test, example, got)
+    def report_unexpected_exception(self, out, test, example, got):
+        self.events.append(('exception', out, test, example, got))
+        return doctest.DocTestRunner.report_unexpected_exception(self, out, test, example, got)
 
 
-def istriplebacktick(line):
-    return line.startswith('```')
+def prompt(text):
+    """
 
-def partition_by_blocks(lines, isstart=istriplebacktick, isend=istriplebacktick):
-    part = list()
-    in_code_block = False
-    for line in lines:
-        if not in_code_block and isstart(line):
-            yield {'type': 'prose', 'content': part}
-            part = [line]
-            in_code_block = True
-        elif in_code_block and isend(line):
-            part.append(line)
-            yield {'type': 'code', 'content': part}
-            part = []
-            in_code_block = False
+    >>> prompt("x + 1")
+    '>>> x + 1'
+    >>> prompt("for i in seq:\n    print(i)")
+    '>>> for i in seq:\n...     print(i)'
+    """
+    return ('>>> '
+            + text.rstrip().replace('\n', '... ')
+            + ('\n' if text[-1] == '\n' else ''))
+
+
+parser = doctest.DocTestParser()
+
+
+def process(text):
+    """ Replace failures in docstring with results """
+    runner = RecordingDocTestRunner()
+    test = parser.get_doctest(text, dict(), 'foo', '', 0)
+    runner.run(test)
+    parts = parser.parse(text)
+
+    parts2 = []
+    events = iter(runner.events)
+    for part in parts:
+        if isinstance(part, doctest.Example):
+            _, _, _, example, result = next(events)
+            parts2.append(prompt(example.source))
+            if result.rstrip():
+                parts2.append(result)
         else:
-            part.append(line)
+            if part:
+                parts2.append(part)
 
-    if in_code_block:
-        yield {'type': 'code', 'content': part}
-    else:
-        yield {'type': 'prose', 'content': part}
-
-
-def transform_prose(lines):
-    """
-
-    >>> transform_prose(['Title', '-----'])
-    ['Title', '-----']
-    """
-    return lines
-
-def transform_code(lines, scope=dict()):
-    """
-
-    >>> text = [">>> 1 + 1"]
-    >>> transform_code(text)
-    ['>>> 1 + 1', '2']
-    """
-    out = list()
-    seq = iter(lines)
-    try:
-        while True:
-            line = next(seq)
-            out.append(line)
-            if line.lstrip().startswith('>>>'):
-                result = repr(eval(line.lstrip(' >'), scope))
-                out.extend(result.split('\n'))
-                seq = burn_results(seq)
-    except StopIteration:
-        pass
-    return out
-
-
-def burn_results(seq):
-    item = next(seq).lstrip()
-    while item and not (item.startswith('>>>') or item.startswith('```')):
-        item = next(seq).lstrip()
-    return chain([item], seq)
-
-transformers = {'code': transform_code, 'prose': transform_prose}
-
-def transform(part):
-    """ Transform one part/block of the text """
-    rv = part.copy()
-    rv['content'] = transformers[part['type']](part['content'])
-    return rv
-
-
-def render(text):
-    """ Render pymarkdown text """
-    lines = text.split('\n')
-    parts = partition_by_blocks(lines)
-    parts2 = map(transform, parts)
-
-    lines = [line for part in parts2 for line in part['content']]
-
-    return '\n'.join(lines)
+    return ''.join(parts2)

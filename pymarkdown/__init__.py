@@ -1,1 +1,1 @@
-from .core import render
+from .core import process
