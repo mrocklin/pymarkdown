@@ -8,21 +8,22 @@ Why?
 
 Mostly because I was jealous of RMarkdown/knitr.
 
-Interleaving prose, code, and results conveys meaning well.  The Jupyter
-notebook taught us this.  When we author static content we want a simple
-text-based format. Markdown is good here because it plays well with other tools
-(`vi/emacs`, `pandoc`, `git`.)  RMarkdown/knitr has demonstrated value in the R
-ecosystem, pymarkdown just copies that idea (badly at the moment.)
+The Jupyter notebook teaches us that interleaving prose, code, and results
+conveys meaning well. However when we author persistent content we often want a
+simple static text-based format.  Markdown is good here because it plays well
+with other tools (`vi/emacs`, `pandoc`, `git`.)
+
+RMarkdown/knitr has demonstrated value in the R ecosystem, lets mimic that.
 
 How does this work?
 -------------------
 
 PyMarkdown leverages the `doctest` module to parse code into prose and code
-segments much like a docstring.  We then execute each code segment in order
-with `exec`, tracking state throughout the document, emitting or correcting
-results from computation where appropriate.  Both input and output documents
-are valid markdown appropriate for publishing on github, your favorite
-blogging software, or pandoc.
+segments much like a docstring.  It then executes each code segment
+sequentially with `exec`, tracking state throughout the document, emitting or
+correcting results from computation where appropriate.  Both input and output
+documents are valid markdown appropriate for publication on github, your
+favorite blogging software, or with pandoc.
 
 
 Example
