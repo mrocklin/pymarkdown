@@ -3,6 +3,12 @@ PyMarkdown
 
 Evaluate code in markdown.
 
+How does this work?
+-------------------
+
+Currently we just hijack the ``doctest`` module to walk through and evaluate
+code.
+
 Example
 -------
 
