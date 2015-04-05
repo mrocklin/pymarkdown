@@ -50,7 +50,7 @@ Fancy Support
 
     ### HTML
 
-    This supports objects that implement the `to_html` or `__repr_html__`.
+    This supports objects that implement `to_html` or `__repr_html__`.
     Lets see an example with Pandas
 
     ```python
