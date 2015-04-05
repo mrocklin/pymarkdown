@@ -2,7 +2,9 @@ import doctest
 import re
 from contextlib import contextmanager
 from StringIO import StringIO
+import itertools
 import sys
+from toolz.curried import pipe, map, filter, concat
 
 class RecordingDocTestRunner(doctest.DocTestRunner):
     def __init__(self, *args, **kwargs):
@@ -43,32 +45,29 @@ def closing_brace(opener):
         return '{% endsyntax %}'
 
 
-def separate_code_braces(text, endl='\n'):
-    """ Add endlines before and after code lines
+def separate_fence(part, endl='\n'):
+    """ Separate code braces from prose or example sections
 
-    The doctest parser pulls them into the tests otherwise
+    >>> separate_fence('Hello\n```python')
+    ['Hello', '```python']
+
+    >>> separate_fence(doctest.Example('1 + 1', '2\n```'))
+    [Example('1 + 1', '2'), '```']
     """
-    lines = text.rstrip().split(endl)
-    out = list()
-    for line in lines:
-        if iscodebrace(line):
-            out.append('')
-        out.append(line)
-    return endl.join(out)
-
-def cleanup_code_braces(text, endl='\n'):
-    """ Remove unnecessary whitespace before/after code braces
-
-    See also:
-        sseparate_code_braces
-    """
-    lines = text.split(endl)
-    out = list()
-    for line in lines:
-        if iscodebrace(line) and out and not out[-1]:
-            out.pop()
-        out.append(line)
-    return endl.join(out)
+    if isinstance(part, (str, unicode)):
+        lines = part.split('\n')
+        groups = itertools.groupby(lines, iscodebrace)
+        return ['\n'.join(group) for _, group in groups]
+    if isinstance(part, doctest.Example):
+        lines = part.want.rstrip().split('\n')
+        braces = list(map(iscodebrace, lines))
+        if any(braces):
+            i = braces.index(True)
+            return [doctest.Example(part.source, '\n'.join(lines[:i])),
+                    lines[i],
+                    '\n'.join(lines[i+1:])]
+        else:
+            return [part]
 
 
 def prompt(text):
@@ -79,24 +78,28 @@ def prompt(text):
         prompt("for i in seq:\n    print(i)")
         '>>> for i in seq:\n...     print(i)'
     """
-    return ('>>> '
-            + text.rstrip().replace('\n', '... ')
-            + ('\n' if text[-1] == '\n' else ''))
+    return '>>> ' + text.rstrip().replace('\n', '\n... ')
 
 
 parser = doctest.DocTestParser()
 
 def render_part(part):
-    if isinstance(part, str):
+    if isinstance(part, (str, unicode)):
         return part
     if isinstance(part, doctest.Example):
-        return prompt(part.source) + part.want
+        result = prompt(part.source)
+        if part.want:
+            result = result + '\n' + part.want
+        return result.rstrip()
 
 
 def process(text):
     """ Replace failures in docstring with results """
-    text = separate_code_braces(text)
-    parts = parser.parse(text)
+    parts = pipe(text,
+                       parser.parse,
+                       filter(None),
+                       map(separate_fence),
+                       concat, list)
 
     scope = dict()
     state = dict()
@@ -106,7 +109,9 @@ def process(text):
         out, scope, state = step(part, scope, state)
         out_parts.extend(out)
 
-    return cleanup_code_braces(''.join(map(render_part, out_parts)))
+    return pipe(out_parts, map(render_part),
+                           filter(None),
+                           '\n'.join)
 
 
 def isassignment(line):
@@ -120,7 +125,7 @@ def step(part, scope, state):
     2.  Code fence: recorded
     3.  Code: evaluated
     """
-    if isinstance(part, str) and iscodebrace(part):
+    if isinstance(part, (str, unicode)) and iscodebrace(part):
         if 'code' in state:
             del state['code']
         else:
@@ -140,13 +145,19 @@ def step(part, scope, state):
             result = s.read().rstrip().strip("'")
 
         if isassignment(part.source):
-            result = ''
-        if hasattr(result, '__repr_html__'):
-            out = [closing_brace(state['code']),
+            out = [doctest.Example(part.source, '')]
+        elif hasattr(result, '__repr_html__'):
+            out = [doctest.Example(part.source, ''),
+                   closing_brace(state['code']),
                    result.__repr_html__(),
                    state['code']]
+        elif hasattr(result, 'to_html'):
+            out = [doctest.Example(part.source, ''),
+                   closing_brace(state['code']),
+                   result.to_html(),
+                   state['code']]
         else:
-            if result and not isinstance(result, str):
+            if not isinstance(result, str):
                 result = repr(result)
             out = [doctest.Example(part.source, result)]
         del scope['__builtins__']

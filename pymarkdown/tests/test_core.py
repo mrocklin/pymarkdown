@@ -1,4 +1,4 @@
-from pymarkdown.core import process, separate_code_braces, parser, step
+from pymarkdown.core import (process, parser, step, separate_fence)
 import doctest
 
 text = """
@@ -27,15 +27,9 @@ Some prose
 """.rstrip()
 
 
-parts = parser.parse(separate_code_braces(text))
-
-
 def test_process():
     assert process(text) == desired
 
-
-def test_separate_code_braces():
-    assert separate_code_braces(text).split('\n')[-2:] == ['', '```']
 
 
 class Shout(object):
@@ -75,3 +69,10 @@ def test_step():
     b = doctest.Example("print(5)", '5')
     out, scope, state = step(a, {}, {'code': '```Python'})
     assert (out, scope, state) == ([b], {}, {'code': '```Python'})
+
+
+def test_separate_fence():
+    assert separate_fence('Hello\n```python') == ['Hello', '```python']
+
+    assert separate_fence(doctest.Example('1 + 1', '2\n```')) ==\
+            [doctest.Example('1 + 1', '2'), '```', '']
