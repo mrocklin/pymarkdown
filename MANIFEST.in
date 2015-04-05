@@ -1,0 +1,7 @@
+recursive-include pymarkdown *.py
+recursive-include docs *.rst
+
+include setup.py
+include README.rst
+include LICENSE
+include MANIFEST.in
