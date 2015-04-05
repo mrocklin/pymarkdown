@@ -16,6 +16,41 @@ class RecordingDocTestRunner(doctest.DocTestRunner):
         return doctest.DocTestRunner.report_unexpected_exception(self, out, test, example, got)
 
 
+def iscodebrace(line):
+    return (line.startswith('```')
+         or line.startswith('~~~')
+         or line.startswith('{%') and 'highlight' in line
+         or line.startswith('{%') and 'syntax' in line)
+
+
+def separate_code_braces(text, endl='\n'):
+    """ Add endlines before and after code lines
+
+    The doctest parser pulls them into the tests otherwise
+    """
+    lines = text.rstrip().split(endl)
+    out = list()
+    for line in lines:
+        if iscodebrace(line):
+            out.append('')
+        out.append(line)
+    return endl.join(out)
+
+def cleanup_code_braces(text, endl='\n'):
+    """ Remove unnecessary whitespace before/after code braces
+
+    See also:
+        sseparate_code_braces
+    """
+    lines = text.split(endl)
+    out = list()
+    for line in lines:
+        if iscodebrace(line) and out and not out[-1]:
+            out.pop()
+        out.append(line)
+    return endl.join(out)
+
+
 def prompt(text):
     """
 
@@ -34,6 +69,7 @@ parser = doctest.DocTestParser()
 
 def process(text):
     """ Replace failures in docstring with results """
+    text = separate_code_braces(text)
     runner = RecordingDocTestRunner()
     test = parser.get_doctest(text, dict(), 'foo', '', 0)
     runner.run(test)
@@ -51,4 +87,4 @@ def process(text):
             if part:
                 parts2.append(part)
 
-    return ''.join(parts2)
+    return cleanup_code_braces(''.join(parts2))
