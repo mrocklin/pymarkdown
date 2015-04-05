@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 setup(name='pymarkdown',
-      version='0.1.1',
+      version='0.1.2',
       description='Evaluate code in markdown',
       url='http://github.com/mrocklin/pymarkdown',
       author='Matthew Rocklin',
