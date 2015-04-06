@@ -123,15 +123,16 @@ PyMarkdown leverages standard protocols like `to_html` or `__repr_html__`.
 Images
 ------
 
-    PyMarkdown supports both [Matplotlib](http://matplotlib.org/) and
-    [Bokeh](http://bokeh.pydata.org/) figure objects.
+    PyMarkdown supports figure objects from both
+    [Matplotlib](http://matplotlib.org/) and
+    [Bokeh](http://bokeh.pydata.org/).
 
     Bokeh plots only work in browser but remain interactive.  You must create a
     standalone HTML file, possibly with [Pandoc](http://johnmacfarlane.net/pandoc/)
 
         pandoc myfile.out.md -o myfile.html --standalone
 
-    ```
+    ```Python
     >>> import matplotlib.pyplot as plt
 
     >>> fig = plt.figure()
@@ -139,15 +140,16 @@ Images
     >>> fig
     ```
 
-PyMarkdown supports both [Matplotlib](http://matplotlib.org/) and
-[Bokeh](http://bokeh.pydata.org/) figure objects.
+PyMarkdown supports figure objects from both
+[Matplotlib](http://matplotlib.org/) and
+[Bokeh](http://bokeh.pydata.org/).
 
 Bokeh plots only work in browser but remain interactive.  You must create a
 standalone HTML file, possibly with [Pandoc](http://johnmacfarlane.net/pandoc/)
 
     pandoc myfile.out.md -o myfile.html --standalone
 
-```
+```Python
 >>> import matplotlib.pyplot as plt
 
 >>> fig = plt.figure()
