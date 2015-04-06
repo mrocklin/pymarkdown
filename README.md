@@ -166,9 +166,9 @@ Support
 There is none!  This is a single-weekend project.  Use at your own risk.
 Please contribute and take this project over.
 
-Honestly what I've learned is that this isn't that hard and that a lot of
-people really want this.  If you're reading this then I encourage you to
-extend or reinvent this project to make it better.
+I've learned that this isn't that hard and would be well appreciated by many
+people.  If you have the attention span to read this far then I encourage you
+to extend or reinvent this project.
 
 
 TODO
@@ -183,6 +183,7 @@ TODO
 - [ ] Better command line interface (should use something like `argparse` rather
       than `sys.argv`)
 - [ ] Find a better name?
+
 
 Open Questions
 --------------
