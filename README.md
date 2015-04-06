@@ -50,7 +50,7 @@ Example
     with potentially missing or wrong results
     ```
 
-We run pymarkdown and looks at updated results:
+We run pymarkdown and look at updated results:
 
     $ pymarkdown text.md text.out.md
 
