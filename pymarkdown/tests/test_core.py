@@ -1,6 +1,9 @@
-from pymarkdown.core import (process, parser, step, separate_fence,
-        render_bokeh_figure)
 import doctest
+import os
+
+from pymarkdown.core import (process, parser, step, separate_fence,
+        render_bokeh_figure, render_matplotlib_figure)
+
 
 text = """
 Title

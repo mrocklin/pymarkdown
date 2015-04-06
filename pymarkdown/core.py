@@ -1,7 +1,10 @@
 import doctest
 import re
 from contextlib import contextmanager
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import itertools
 import sys
 import os
@@ -230,8 +233,8 @@ def render_matplotlib_figure(result, state):
     result.savefig(fn)
 
     if 'images' not in state:
-        state['images'] = set()
-    state['images'].add(fn)
+        state['images'] = list()
+    state['images'].append(fn)
 
     return [closing_fence(state['code']),
             '![](%s)' % fn,
