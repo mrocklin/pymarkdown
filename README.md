@@ -115,7 +115,8 @@ PyMarkdown leverages standard protocols like `to_html` or `__repr_html__`.
 Images
 ------
 
-Nope, not yet.
+If you also use [Pandoc](http://johnmacfarlane.net/pandoc/) then this works
+with [Bokeh plots](bokeh.pydata.org).
 
 
 Support
@@ -123,12 +124,28 @@ Support
 
 There is none!  This is a Saturday morning project.  Use at your own risk.
 
-### TODO
+TODO
+----
 
-* Interact with matplotlib (figure out how IPython does this)
-* Interact with Bokeh plots.  These already implement `__repr_html__` so this
-  probably just means linking to some static content somewhere.
-* Support inlining of values in prose blocks
-* Support options like ignore, echo=False, etc..
-* Handle exceptions
+- [ ] Interact with matplotlib (figure out how IPython does this)
+- [x] Interact with Bokeh plots.  These already implement `__repr_html__` so
+    this probably just means linking to some static content somewhere.
+- [ ] Support inlining of values in prose blocks
+- [ ] Support options like ignore, echo=False, etc..
+- [ ] Handle exceptions
+- [ ] Better command line interface
 
+Open Questions
+--------------
+
+*  I've been specializing towards HTML because that's what I care about at the
+   moment.  This might not be a good approach long term though.
+*  Do we want to integrate with pandoc?  I tend to do something like the
+   following
+
+        pymarkdown myfile.md myfile.out.md  && \
+        pandoc myfile.out.md -o myfile.html --standalone
+
+    But for a tool like this few keystrokes is probably best.
+
+Have other thoughts?  Great!  Please implement them :)
