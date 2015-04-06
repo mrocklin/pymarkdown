@@ -123,10 +123,39 @@ PyMarkdown leverages standard protocols like `to_html` or `__repr_html__`.
 Images
 ------
 
-If you also use [Pandoc](http://johnmacfarlane.net/pandoc/) then this works
-with [Bokeh plots](http://bokeh.pydata.org/).
+    PyMarkdown supports both [Matplotlib](http://matplotlib.org/) and
+    [Bokeh](http://bokeh.pydata.org/) figure objects.
 
-This now also works with [matplotlib](http://matplotlib.org/).
+    Bokeh plots only work in browser but remain interactive.  You must create a
+    standalone HTML file, possibly with [Pandoc](http://johnmacfarlane.net/pandoc/)
+
+        pandoc myfile.out.md -o myfile.html --standalone
+
+    ```
+    >>> import matplotlib.pyplot as plt
+
+    >>> fig = plt.figure()
+    >>> plt.plot([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+    >>> fig
+    ```
+
+PyMarkdown supports both [Matplotlib](http://matplotlib.org/) and
+[Bokeh](http://bokeh.pydata.org/) figure objects.
+
+Bokeh plots only work in browser but remain interactive.  You must create a
+standalone HTML file, possibly with [Pandoc](http://johnmacfarlane.net/pandoc/)
+
+    pandoc myfile.out.md -o myfile.html --standalone
+
+```
+>>> import matplotlib.pyplot as plt
+
+>>> fig = plt.figure()
+>>> plt.plot([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+[<matplotlib.lines.Line2D object at 0x7f1b53169690>]
+>>> fig
+```
+![](examples/images/8734720408301.png)
 
 
 Support
@@ -134,6 +163,10 @@ Support
 
 There is none!  This is a single-weekend project.  Use at your own risk.
 Please contribute and take this project over.
+
+Honestly what I've learned is that this isn't that hard and that a lot of
+people really want this.  If you're reading this then I encourage you to
+extend or reinvent this project to make it better.
 
 
 TODO
