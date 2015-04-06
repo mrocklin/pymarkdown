@@ -130,7 +130,10 @@ Images
     Bokeh plots only work in browser but remain interactive.  You must create a
     standalone HTML file, possibly with [Pandoc](http://johnmacfarlane.net/pandoc/)
 
+        pymarkdown myfile.md myfile.out.md
         pandoc myfile.out.md -o myfile.html --standalone
+
+    But that output doesn't look good in a README, so here we'll use matplotlib
 
     ```Python
     >>> import matplotlib.pyplot as plt
@@ -147,7 +150,10 @@ PyMarkdown supports figure objects from both
 Bokeh plots only work in browser but remain interactive.  You must create a
 standalone HTML file, possibly with [Pandoc](http://johnmacfarlane.net/pandoc/)
 
+    pymarkdown myfile.md myfile.out.md
     pandoc myfile.out.md -o myfile.html --standalone
+
+But that output doesn't look good in a README, so here we'll use matplotlib
 
 ```Python
 >>> import matplotlib.pyplot as plt
@@ -166,9 +172,9 @@ Support
 There is none!  This is a single-weekend project.  Use at your own risk.
 Please contribute and take this project over.
 
-I've learned that this isn't that hard and would be well appreciated by many
-people.  If you have the attention span to read this far then I encourage you
-to extend or reinvent this project.
+I've learned both that this isn't that hard and that it would be well
+appreciated by many people.  If you have the attention span to read this far
+then I encourage you to extend or reinvent this project.
 
 
 TODO
