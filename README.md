@@ -126,6 +126,8 @@ Images
 If you also use [Pandoc](http://johnmacfarlane.net/pandoc/) then this works
 with [Bokeh plots](http://bokeh.pydata.org/).
 
+This now also works with [matplotlib](http://matplotlib.org/).
+
 
 Support
 -------
@@ -139,7 +141,7 @@ TODO
 
 - [x] Interact with Bokeh plots.  These already implement `__repr_html__` so
       this probably just means linking to some static content somewhere.
-- [ ] Interact with matplotlib (figure out how IPython does this)
+- [x] Interact with matplotlib
 - [ ] Support inlining of values in prose blocks
 - [ ] Support options like ignore, echo=False, etc..
 - [ ] Handle exceptions
