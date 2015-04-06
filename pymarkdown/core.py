@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from StringIO import StringIO
 import itertools
 import sys
+import os
 from toolz.curried import pipe, map, filter, concat
 
 
@@ -221,4 +222,21 @@ def render_bokeh_figure(result, state):
             state['code']]
 
 
-custom_renderers = {'bokeh.plotting.Figure': render_bokeh_figure}
+def render_matplotlib_figure(result, state):
+    import matplotlib.pyplot as plt
+    fn = os.path.join('images', str(abs(hash(result))) + '.png')
+    if not os.path.exists('images'):
+        os.mkdir('images')
+    result.savefig(fn)
+
+    if 'images' not in state:
+        state['images'] = set()
+    state['images'].add(fn)
+
+    return [closing_fence(state['code']),
+            '![](%s)' % fn,
+            state['code']]
+
+
+custom_renderers = {'bokeh.plotting.Figure': render_bokeh_figure,
+                    'matplotlib.figure.Figure': render_matplotlib_figure}

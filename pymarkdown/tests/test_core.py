@@ -96,3 +96,23 @@ def test_render_bokeh():
     assert 'My Title' in state['footers'][0]
     assert any('.css' in header for header in state['headers'])
     assert any('.js' in header for header in state['headers'])
+
+
+def test_render_matplotlib():
+    try:
+        from matplotlib import pyplot as plt
+    except ImportError:
+        return
+
+    fig = plt.figure()
+
+    state = {'code': '```'}
+    out = render_matplotlib_figure(fig, state)
+
+    assert out[0] == '```'
+    assert out[1].startswith('![')
+    assert out[2] == '```'
+    assert state['images'][0] in out[1]
+
+    assert os.path.exists('images')
+    assert os.path.exists(os.path.join('images', state['images'][0]))
