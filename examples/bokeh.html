@@ -1,25 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+</head>
+<body>
 <link rel="stylesheet" href="http://cdn.pydata.org/bokeh-0.7.1.min.css" type="text/css"/>
 <script src="http://cdn.pydata.org/bokeh-0.7.1.min.js" async=""></script>
 
-We try out bokeh plots
-======================
-
-```python
->>> from bokeh.plotting import figure
->>> x = [1, 2, 3, 4, 5]
->>> y = [6, 7, 2, 4, 5]
+<h1 id="we-try-out-bokeh-plots">We try out bokeh plots</h1>
+<pre class="sourceCode python"><code class="sourceCode python">&gt;&gt;&gt; <span class="ch">from</span> bokeh.plotting <span class="ch">import</span> figure
+&gt;&gt;&gt; x = [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>]
+&gt;&gt;&gt; y = [<span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">5</span>]
 
 
->>> p = figure(title="simple line example", x_axis_label='x', y_axis_label='y')
->>> p.line(x, y, legend="Temp.", line_width=2)
-```
+&gt;&gt;&gt; p = figure(title=<span class="st">&quot;simple line example&quot;</span>, x_axis_label=<span class="st">&#39;x&#39;</span>, y_axis_label=<span class="st">&#39;y&#39;</span>)
+&gt;&gt;&gt; p.line(x, y, legend=<span class="st">&quot;Temp.&quot;</span>, line_width=<span class="dv">2</span>)</code></pre>
 <div class="plotdiv" id="ad6b695a-a25d-40d8-8019-1b9a0ac5b815"></div>
-```python
-```
-
-Did that work?
-
-
+<pre class="sourceCode python"><code class="sourceCode python"></code></pre>
+<p>Did that work?</p>
 <script type="text/javascript">
     Bokeh.$(function() {
         var modelid = "38e442f6-6fb5-49c6-8927-f89c514cc069";
@@ -36,3 +57,5 @@ Did that work?
         Bokeh.index[modelid] = view
     });
 </script>
+</body>
+</html>

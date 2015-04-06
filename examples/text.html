@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+</head>
+<body>
+<h1 id="title">Title</h1>
+<p>Some prose</p>
+<pre class="sourceCode Python"><code class="sourceCode python"><span class="co"># And some code</span>
+
+&gt;&gt;&gt; x = <span class="dv">1</span>
+&gt;&gt;&gt; x + <span class="dv">1</span>
+<span class="dv">2</span>
+
+
+&gt;&gt;&gt; <span class="dv">2</span> + <span class="dv">2</span>*x
+<span class="dv">4</span></code></pre>
+<p>We also handle HTML with <code>__repr_html__</code></p>
+<pre class="sourceCode Python"><code class="sourceCode python">&gt;&gt;&gt; <span class="ch">import</span> pandas <span class="ch">as</span> pd
+&gt;&gt;&gt; df = pd.DataFrame({<span class="st">&#39;name&#39;</span>: [<span class="st">&#39;Alice&#39;</span>, <span class="st">&#39;Bob&#39;</span>, <span class="st">&#39;Charlie&#39;</span>],
+...                    <span class="st">&#39;balance&#39;</span>: [<span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">300</span>]})
+&gt;&gt;&gt; df</code></pre>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>
+balance
+</th>
+      <th>
+name
+</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>
+0
+</th>
+      <td> 
+100
+</td>
+      <td>   
+Alice
+</td>
+    </tr>
+    <tr>
+      <th>
+1
+</th>
+      <td> 
+200
+</td>
+      <td>     
+Bob
+</td>
+    </tr>
+    <tr>
+      <th>
+2
+</th>
+      <td> 
+300
+</td>
+      <td> 
+Charlie
+</td>
+    </tr>
+  </tbody>
+</table>
+<pre class="sourceCode Python"><code class="sourceCode python"></code></pre>
+</body>
+</html>

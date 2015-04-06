@@ -11,5 +11,9 @@ for fn in fns:
 
     processed = process(text)
 
-    with open(fn.rsplit('.')[0] + '.rendered.md', 'w') as f:
+    rendered_fn = fn.rsplit('.', 1)[0] + '.rendered.md'
+    with open(rendered_fn, 'w') as f:
         f.write(processed)
+
+    html_fn = fn.rsplit('.', 1)[0] + '.html'
+    os.popen('pandoc %s -o %s --standalone' % (rendered_fn, html_fn)).read()
