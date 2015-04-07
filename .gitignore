@@ -1,1 +1,6 @@
 *.pyc
+*.pyo
+*.pyd
+
+.coverage
+images/*

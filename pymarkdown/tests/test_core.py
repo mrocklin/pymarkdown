@@ -1,7 +1,9 @@
+from __future__ import print_function, unicode_literals, absolute_import
+
 import doctest
 import os
 
-from pymarkdown.core import (process, parser, step, separate_fence,
+from ..core import (process, parser, step, separate_fence,
         render_bokeh_figure, render_matplotlib_figure)
 
 
@@ -72,7 +74,9 @@ def test_step():
     a = doctest.Example("print(5)", '')
     b = doctest.Example("print(5)", '5')
     out, scope, state = step(a, {}, {'code': '```Python'})
-    assert (out, scope, state) == ([b], {}, {'code': '```Python'})
+    assert out == [b]
+    assert scope == {}
+    assert state == {'code': '```Python'}
 
 
 def test_separate_fence():

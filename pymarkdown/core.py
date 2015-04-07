@@ -1,11 +1,18 @@
+from __future__ import print_function, unicode_literals, absolute_import
+
 import doctest
 import re
 from contextlib import contextmanager
-from StringIO import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import itertools
 import sys
 import os
 from toolz.curried import pipe, map, filter, concat
+
+from .compatibility import str, is_string
 
 
 def process(text):
@@ -41,16 +48,20 @@ def step(part, scope, state):
     4.  Code with html output:
         print source, end code block, print html, start code block
     """
-    if isinstance(part, (str, unicode)) and iscodefence(part):
+    if is_string(part) and iscodefence(part):
         if 'code' in state:
             del state['code']
         else:
             state['code'] = part
         return [part], scope, state
-    if isinstance(part, (str, unicode)):
+    if is_string(part):
         return [part], scope, state
     if isinstance(part, doctest.Example):
-        if valid_statement('_last = ' + part.source):
+        if isprint(part.source):
+            with swap_stdout() as s:
+                exec(part.source, scope)
+            result = s.getvalue().rstrip().strip("'")
+        elif valid_statement('_last = ' + part.source):
             code = compile('_last = ' + part.source, '<pymarkdown>', 'single')
             exec(code, scope)
             result = scope.pop('_last')
@@ -76,7 +87,7 @@ def step(part, scope, state):
                    result.to_html(),
                    state['code']]
         else:
-            if not isinstance(result, str):
+            if not is_string(result):
                 result = repr(result)
             out = [doctest.Example(part.source, result)]
         del scope['__builtins__']
@@ -95,8 +106,8 @@ def iscodefence(line):
 def closing_fence(opener):
     """ Closing pair an an opening fence
 
-    >>> closing_fence('```Python')
-    '```'
+    >>> closing_fence('```Python') == '```'
+    True
     """
     if '```' in opener:
         return '```'
@@ -117,7 +128,7 @@ def separate_fence(part, endl='\n'):
         >> separate_fence(doctest.Example('1 + 1', '2\n```'))
         [Example('1 + 1', '2'), '```']
     """
-    if isinstance(part, (str, unicode)):
+    if is_string(part):
         lines = part.split('\n')
         groups = itertools.groupby(lines, iscodefence)
         return ['\n'.join(group) for _, group in groups]
@@ -146,9 +157,10 @@ def prompt(text):
 
 parser = doctest.DocTestParser()
 
+
 def render_part(part):
     """ Render a part into text """
-    if isinstance(part, (str, unicode)):
+    if is_string(part):
         return part
     if isinstance(part, doctest.Example):
         result = prompt(part.source)
@@ -156,9 +168,13 @@ def render_part(part):
             result = result + '\n' + part.want
         return result.rstrip()
 
+
 def isassignment(line):
     return not not re.match('^\w+\s*=', line)
 
+
+def isprint(line):
+    return line.lstrip().startswith('print')
 
 def valid_statement(source):
     """ Is source a valid statement?
@@ -182,9 +198,9 @@ def swap_stdout():
     Yields the StringIO object and cleans up afterwards
 
     >>> with swap_stdout() as s:
-    ...      print "Hello!",
-    >>> s.read()
-    'Hello!'
+    ...      print("Hello!", end='')
+    >>> s.getvalue() == 'Hello!'
+    True
     """
     s = StringIO()
     old = sys.stdout
