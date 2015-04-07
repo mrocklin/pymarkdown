@@ -222,16 +222,20 @@ def render_bokeh_figure(result, state):
             state['code']]
 
 
-def render_matplotlib_figure(result, state):
+def render_matplotlib_figure(result, state, directory=None):
+    if directory is None:
+        directory = os.path.join(os.getcwd(), 'images')
+    else:
+        directory = os.path.join(directory, 'images')
     import matplotlib.pyplot as plt
-    fn = os.path.join('images', str(abs(hash(result))) + '.png')
-    if not os.path.exists('images'):
-        os.mkdir('images')
+    fn = os.path.join(directory, str(abs(hash(result))) + '.png')
+    if not os.path.exists(directory):
+        os.mkdir(directory)
     result.savefig(fn)
 
     if 'images' not in state:
-        state['images'] = set()
-    state['images'].add(fn)
+        state['images'] = list()
+    state['images'].append(fn)
 
     return [closing_fence(state['code']),
             '![](%s)' % fn,
