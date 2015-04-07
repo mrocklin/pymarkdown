@@ -1,7 +1,9 @@
+from __future__ import absolute_import, division, print_function
+
 import doctest
 import re
 from contextlib import contextmanager
-from StringIO import StringIO
+from .compatibility import StringIO, unicode
 import itertools
 import sys
 import os
