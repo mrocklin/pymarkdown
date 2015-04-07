@@ -7,6 +7,7 @@ from ..core import (process, parser, step, separate_fence,
         render_bokeh_figure, render_matplotlib_figure)
 
 
+
 text = """
 Title
 =====
@@ -44,6 +45,7 @@ class Shout(object):
 
     def __repr_html__(self):
         return "<h1>%s</h1>" % self.data
+
 
 def test_step():
     out, scope, state = step("prose", {'x': 1}, {})
