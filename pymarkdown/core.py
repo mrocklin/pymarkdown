@@ -1,18 +1,17 @@
-from __future__ import print_function, unicode_literals, absolute_import
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 import doctest
 import re
 from contextlib import contextmanager
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
 import itertools
 import sys
 import os
+
 from toolz.curried import pipe, map, filter, concat
 
-from .compatibility import str, is_string
+from .compatibility import StringIO, unicode
 
 
 def process(text):
@@ -48,13 +47,13 @@ def step(part, scope, state):
     4.  Code with html output:
         print source, end code block, print html, start code block
     """
-    if is_string(part) and iscodefence(part):
+    if isinstance(part, (str, unicode)) and iscodefence(part):
         if 'code' in state:
             del state['code']
         else:
             state['code'] = part
         return [part], scope, state
-    if is_string(part):
+    if isinstance(part, (str, unicode)):
         return [part], scope, state
     if isinstance(part, doctest.Example):
         if isprint(part.source):
@@ -87,7 +86,7 @@ def step(part, scope, state):
                    result.to_html(),
                    state['code']]
         else:
-            if not is_string(result):
+            if not isinstance(result, (str, unicode)):
                 result = repr(result)
             out = [doctest.Example(part.source, result)]
         del scope['__builtins__']
@@ -128,7 +127,7 @@ def separate_fence(part, endl='\n'):
         >> separate_fence(doctest.Example('1 + 1', '2\n```'))
         [Example('1 + 1', '2'), '```']
     """
-    if is_string(part):
+    if isinstance(part, (str, unicode)):
         lines = part.split('\n')
         groups = itertools.groupby(lines, iscodefence)
         return ['\n'.join(group) for _, group in groups]
@@ -160,7 +159,7 @@ parser = doctest.DocTestParser()
 
 def render_part(part):
     """ Render a part into text """
-    if is_string(part):
+    if isinstance(part, (str, unicode)):
         return part
     if isinstance(part, doctest.Example):
         result = prompt(part.source)

@@ -1,14 +1,13 @@
-from __future__ import print_function, absolute_import, unicode_literals
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
 
 import sys
 
+if sys.version_info[0] == 3:
+    from io import StringIO
+    unicode = str
 
-_str = str
-if sys.version.startswith('3'):
-	str = _str
-else:
-	str = unicode
-
-
-def is_string(obj):
-	return isinstance(obj, (_str, str))
+if sys.version_info[0] == 2:
+    from StringIO import StringIO
+    unicode = unicode
