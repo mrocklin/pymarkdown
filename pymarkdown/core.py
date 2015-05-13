@@ -184,9 +184,9 @@ def swap_stdout():
     Yields the StringIO object and cleans up afterwards
 
     >>> with swap_stdout() as s:
-    ...      print "Hello!",
+    ...      print("Hello!")
     >>> s.read()
-    'Hello!'
+    'Hello!\\n'
     """
     s = StringIO()
     old = sys.stdout
