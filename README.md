@@ -183,11 +183,11 @@ TODO
 - [x] Interact with Bokeh plots.  These already implement `__repr_html__` so
       this probably just means linking to some static content somewhere.
 - [x] Interact with matplotlib
+- [x] Better command line interface (should use something like `argparse` rather
+      than `sys.argv`)
 - [ ] Support inlining of values in prose blocks
 - [ ] Support options like ignore, echo=False, etc..
 - [ ] Handle exceptions
-- [ ] Better command line interface (should use something like `argparse` rather
-      than `sys.argv`)
 - [ ] Find a better name?
 
 
