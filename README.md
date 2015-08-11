@@ -1,6 +1,9 @@
 PyMarkdown
 ==========
 
+*You should not use this project.  You should use
+[`knitpy`](https://github.com/JanSchulz/knitpy).*
+
 Evaluate code in markdown.
 
 Why?
